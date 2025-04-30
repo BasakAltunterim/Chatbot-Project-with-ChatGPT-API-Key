@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Page</title>
+    <style>
+        :root {
+            --background: #1a1a2e;
+            --color: #ffffff;
+            --primary-color: #0f3460;
+            --menu-background: #0f3460;
+            --button-gradient-start: #6a11cb;
+            --button-gradient-end: #2575fc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: var(--background);
+            color: var(--color);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 15rem;
+            background: var(--menu-background);
+            color: var(--color);
+            position: fixed;
+            height: 100vh;
+            padding-top: 2rem;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: var(--color);
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            transition: background 0.2s ease-in-out;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: 15rem;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .chatbox {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .chatbox.fullscreen {
+            border-radius: 0;
+            height: calc(100vh - 2rem);
+            padding: 0;
+            margin: 0;
+        }
+
+        .chatbox-messages {
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(100vh - 80px);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbox-message {
+            background: #2a2a3e;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            width: fit-content;
+        }
+
+        .chatbox-message.user {
+            align-self: flex-end;
+            background: #4a4a6e;
+        }
+
+        .chatbox-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chatbox-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+
+        .chatbox-input button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            background: var(--primary-color);
+            color: var(--color);
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--button-gradient-start), var(--button-gradient-end));
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .simularity-checkbox {
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+            color: var(--color);
+        }
+
+        .simularity-message {
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            color: #ffcc00;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!--  Menu -->
+<div class="sidebar">
+    <h2>Menu</h2>
+    <a href="/">Chat</a>
+    <a href="/login">Log Out</a>
+</div>
+
+<!-- Content Area -->
+<div class="main-content">
+
+    <div class="chatbox" id="chatbox">
+        <div class="chatbox-messages" id="chatbox-messages"></div>
+        <div class="chatbox-input">
+            <!-- Simularity Checkbox -->
+            <label class="simularity-checkbox">
+                <input type="checkbox" id="simularityCheckbox" onclick="toggleSimularityMessage()">
+                Similarity
+            </label>
+            <span class="simularity-message" id="simularityMessage">Similarity kullanılıyor</span>
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!--Started Button -->
+    <button class="btn-primary" id="getStartedButton" onclick="showChatbox()">Get Started</button>
+</div>
+
+<script>
+    function showChatbox() {
+        document.getElementById("chatbox").style.display = "flex";
+        document.getElementById("chatbox").classList.add("fullscreen");
+        document.getElementById("getStartedButton").style.display = "none";
+    }
+
+    function toggleSimularityMessage() {
+        const checkbox = document.getElementById("simularityCheckbox");
+        const simularityMessage = document.getElementById("simularityMessage");
+
+        if (checkbox.checked) {
+            simularityMessage.style.display = "inline";
+        } else {
+            simularityMessage.style.display = "none";
+        }
+    }
+
+    async function sendMessage() {
+        const userInput = document.getElementById("userInput");
+        const messageText = userInput.value.trim();
+        const simularityEnabled = document.getElementById("simularityCheckbox").checked;
+
+        if (messageText !== "") {
+            const chatboxMessages = document.getElementById("chatbox-messages");
+
+            // Kullanıcı mesajını göster
+            const userMessage = document.createElement("div");
+            userMessage.className = "chatbox-message user";
+            userMessage.textContent = messageText;
+            chatboxMessages.appendChild(userMessage);
+
+            // Scroll'u aşağı kaydır
+            chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+
+            // Bot düşünme mesajı
+            const botMessage = document.createElement("div");
+            botMessage.className = "chatbox-message";
+            botMessage.textContent = "Bot is thinking...";
+            chatboxMessages.appendChild(botMessage);
+
+            userInput.value = "";
+
+            // Flask API'ye istek gönder
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        message: messageText,
+                        simularity_enabled: simularityEnabled
+                    }),
+                });
+
+                const data = await response.json();
+
+                // Bot yanıtını güncelle
+                botMessage.textContent = data.response;
+                chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+            } catch (error) {
+                botMessage.textContent = "Bir hata oluştu. Lütfen tekrar deneyin.";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
